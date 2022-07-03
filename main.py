@@ -9,31 +9,17 @@ import botocore
 from dotenv import load_dotenv
 import boto3
 import logging
-from IPython import get_ipython
-
-# get_ipython().run_line_magic('matplotlib', 'inline')
 
 import pyarrow.parquet as pq
-import pyarrow.pandas_compat as pypa
 import s3fs
 s3 = s3fs.S3FileSystem()
 
-from shapely import wkt
-
 
 import pandas as pd
-from datetime import datetime
-import numpy as np
 import geopandas as gp
-import matplotlib.pyplot as plt
-import matplotlib
-from shapely.geometry import Point
-from adjustText import adjust_text
 
 
 import random
-import matplotlib.pyplot as plt
-import contextily as ctx
 from shapely.geometry import Point
 
 from sortedcontainers import SortedList
@@ -147,9 +133,13 @@ def simulation_dataset_by_country(countryName):
             output = output.sort_values('distance')
             output = output.append({'Point': points.geometry}, ignore_index=True)
 
-    resultOutput = 'output{0}.csv'.format(j)
-    output.to_csv(resultOutput)
-    upload_dataset_to_s3(resultOutput, 'indiaOutputs/{0}'.format(resultOutput))
+        resultOutput = 'output{0}.csv'.format(j)
+        output.to_csv(resultOutput)
+        upload_dataset_to_s3(resultOutput, 'indiaOutputs/{0}'.format(resultOutput))
+        if os.path.exists(resultOutput):
+            os.remove(resultOutput)
+        else:
+            print("The file does not exist")
 
 def polygon_random_points (poly, num_points):
     points = gp.GeoDataFrame()
