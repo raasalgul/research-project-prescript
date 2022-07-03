@@ -62,6 +62,7 @@ def upload_dataset_to_s3(name,s3_key):
 # Press the green button in the gutter to run the script.
 def load_datasets():
     # global tiles
+    print("start load")
     tiles = pq.ParquetDataset('s3://x20208057-research-project/2020-quarter3-dataset.parquet', filesystem=s3).read_pandas().to_pandas()
     print(tiles.head(5))
     tiles['tile'] = gp.GeoSeries.from_wkt(tiles['tile'])
@@ -92,6 +93,7 @@ def group_by_countries():
 
 
 def simulation_dataset_by_country(countryName):
+    print("start simulation")
     response = s3_client.get_object(Bucket='x20208057-research-project', Key="2020-quarter3-dataset-joinWorld.csv")
 
     status = response.get("ResponseMetadata", {}).get("HTTPStatusCode")
