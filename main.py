@@ -49,7 +49,7 @@ def upload_dataset_to_s3(name,s3_key):
 def load_datasets():
     # global tiles
     print("start load")
-    tiles = pq.ParquetDataset('s3://x20208057-research-project/2020-quarter3-dataset.parquet', filesystem=s3).read_pandas().to_pandas()
+    tiles = pq.ParquetDataset('s3://x20208057-research-project/complete-dataset.parquet', filesystem=s3).read_pandas().to_pandas()
     print(tiles.head(5))
     tiles['tile'] = gp.GeoSeries.from_wkt(tiles['tile'])
     global geoDataFrame
@@ -79,15 +79,15 @@ def group_by_countries():
 
 
 def simulation_dataset_by_country(countryName):
-    print("start simulation")
-    response = s3_client.get_object(Bucket='x20208057-research-project', Key="2020-quarter3-dataset-joinWorld.csv")
+    # print("start simulation")
+    # response = s3_client.get_object(Bucket='x20208057-research-project', Key="2020-quarter3-dataset-joinWorld.csv")
 
-    status = response.get("ResponseMetadata", {}).get("HTTPStatusCode")
+    # status = response.get("ResponseMetadata", {}).get("HTTPStatusCode")
 
-    if status == 200:
-        print(f"Successful S3 get_object response. Status - {status}")
-        global shapeTest
-        shapeTest = pd.read_csv(response.get("Body"))
+    # if status == 200:
+    #     print(f"Successful S3 get_object response. Status - {status}")
+    global shapeTest
+    shapeTest = pd.read_csv('joinGeoWorldCountries.csv')
     for col in shapeTest.columns:
         print(col)
     shapeTest = shapeTest.drop(shapeTest.columns[[1, 3, 4, 8, 9, 10, 11, 12, 13, 15, 16]], axis=1)
@@ -116,30 +116,34 @@ def simulation_dataset_by_country(countryName):
     global max_y
     max_y = 32.9164853473144
 
+    worldCountries = gp.read_file("zip://local_world_boundary_dataset.zip")
+    geoWorldCountries = gp.GeoDataFrame(worldCountries, geometry='geometry')
     global countryDefinedBoundary
     countryDefinedBoundary = geoWorldCountries.loc[geoWorldCountries["name"].isin([countryName])]
     print(countryDefinedBoundary.head(1))
 
     output = pd.DataFrame()
-    for j in range(3):
-        for i in range(5):
+    for j in range(1):
+        for i in range(2):
             points = polygon_random_points(countryDefinedBoundary, 1)
             point = points.geometry
+            output = output.append({'Point': points.geometry}, ignore_index=True)
             polygon = countryBoundaryJoined.geometry
             out = point.apply(lambda p: polygon.distance(p))
             countryBoundaryJoined['distance'] = out.T
             # countryBoundaryJoined = countryBoundaryJoined.sort_values('distance')
-            output = countryBoundaryJoined[countryBoundaryJoined['distance'] <= 1]
-            output = output.sort_values('distance')
-            output = output.append({'Point': points.geometry}, ignore_index=True)
+            sortOutput = countryBoundaryJoined[countryBoundaryJoined['distance'] <= 1]
+            output = output.append(sortOutput.sort_values('distance'))
+            print(i)
 
+        print(j)
         resultOutput = 'output{0}.csv'.format(j)
         output.to_csv(resultOutput)
-        upload_dataset_to_s3(resultOutput, 'indiaOutputs/{0}'.format(resultOutput))
-        if os.path.exists(resultOutput):
-            os.remove(resultOutput)
-        else:
-            print("The file does not exist")
+        # upload_dataset_to_s3(resultOutput, 'indiaOutputs/{0}'.format(resultOutput))
+        # if os.path.exists(resultOutput):
+        #     os.remove(resultOutput)
+        # else:
+        #     print("The file does not exist")
 
 def polygon_random_points (poly, num_points):
     points = gp.GeoDataFrame()
@@ -157,11 +161,23 @@ def polygon_random_points (poly, num_points):
     return points
 
 
-if __name__ == '__main__':
-    # upload_dataset_to_s3('/Users/sathish/aws/output2.parquet','2020-quarter3-dataset.parquet')
-    # upload_dataset_to_s3('/Users/sathish/Code/Research Project/Simulation/world-administrative-boundaries.zip', 'world-boundary.zip')
-    load_datasets()
-    # group_by_countries()
-    simulation_dataset_by_country('India')
+def download_dataset_s3(s3File,localFile):
+    try:
+        s3_resource.Bucket(bucket_name).download_file(s3File,localFile)
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            raise
 
+
+if __name__ == '__main__':
+    # upload_dataset_to_s3('/Users/sathish/NCI/Final Project/Works/combinedDataset.parquet','complete-dataset.parquet')
+    # upload_dataset_to_s3('/Users/sathish/Code/Research Project/Simulation/world-administrative-boundaries.zip', 'world-boundary.zip')
+    # load_datasets()
+    # group_by_countries()
+    download_dataset_s3('world-boundary.zip', 'local_world_boundary_dataset.zip')
+    download_dataset_s3('2020-quarter3-dataset-joinWorld.csv', 'joinGeoWorldCountries.zip')
+    simulation_dataset_by_country('India')
+    # upload_dataset_to_s3('joinGeoWorldCountries.csv', '2020-quarter3-dataset-joinWorld.csv')
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
