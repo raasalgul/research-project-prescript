@@ -123,8 +123,8 @@ def simulation_dataset_by_country(countryName):
     print(countryDefinedBoundary.head(1))
 
     output = pd.DataFrame()
-    for j in range(1):
-        for i in range(2):
+    for j in range(10):
+        for i in range(1000):
             points = polygon_random_points(countryDefinedBoundary, 1)
             point = points.geometry
             output = output.append({'Point': points.geometry}, ignore_index=True)
@@ -177,7 +177,7 @@ if __name__ == '__main__':
     # load_datasets()
     # group_by_countries()
     download_dataset_s3('world-boundary.zip', 'local_world_boundary_dataset.zip')
-    download_dataset_s3('2020-quarter3-dataset-joinWorld.csv', 'joinGeoWorldCountries.zip')
+    download_dataset_s3('2020-quarter3-dataset-joinWorld.csv', 'joinGeoWorldCountries.csv')
     simulation_dataset_by_country('India')
     # upload_dataset_to_s3('joinGeoWorldCountries.csv', '2020-quarter3-dataset-joinWorld.csv')
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
