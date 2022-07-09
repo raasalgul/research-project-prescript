@@ -179,5 +179,5 @@ if __name__ == '__main__':
     download_dataset_s3('world-boundary.zip', 'local_world_boundary_dataset.zip')
     download_dataset_s3('2020-quarter3-dataset-joinWorld.csv', 'joinGeoWorldCountries.csv')
     simulation_dataset_by_country('India')
-    # upload_dataset_to_s3('joinGeoWorldCountries.csv', '2020-quarter3-dataset-joinWorld.csv')
+    # upload_dataset_to_s3('output0.csv', 'india-prescript/output2.csv')
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
