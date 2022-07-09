@@ -124,6 +124,7 @@ def simulation_dataset_by_country(countryName):
 
     output = pd.DataFrame()
     for j in range(10):
+        output = pd.DataFrame()
         for i in range(1000):
             points = polygon_random_points(countryDefinedBoundary, 1)
             point = points.geometry
