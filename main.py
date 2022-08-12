@@ -97,24 +97,24 @@ def simulation_dataset_by_country(countryName):
     countryBoundaryJoined = countryBoundaryJoined.reset_index()
     # for col in shapeTestFormated.columns:
     #     print(col)
-    # print(countryBoundaryJoined['tile'].head(1))
-    # countryTilesBounds = countryBoundaryJoined['tile'].bounds
-    # min_x = countryTilesBounds['minx'].min()
-    # min_y = countryTilesBounds['miny'].min()
-    # max_x = countryTilesBounds['maxx'].max()
-    # max_y = countryTilesBounds['maxy'].max()
+    print(countryBoundaryJoined['tile'].head(1))
+    countryTilesBounds = countryBoundaryJoined['tile'].bounds
+    min_x = countryTilesBounds['minx'].min()
+    min_y = countryTilesBounds['miny'].min()
+    max_x = countryTilesBounds['maxx'].max()
+    max_y = countryTilesBounds['maxy'].max()
     # print(min_x)
     # print(min_y)
     # print(max_x)
     # print(max_y)
-    global min_x
-    min_x = 68.3843994140625
-    global min_y
-    min_y = 8.07554603328031
-    global max_x
-    max_x = 96.4984130859375
-    global max_y
-    max_y = 32.9164853473144
+#     global min_x
+#     min_x = 68.3843994140625
+#     global min_y
+#     min_y = 8.07554603328031
+#     global max_x
+#     max_x = 96.4984130859375
+#     global max_y
+#     max_y = 32.9164853473144
 
     worldCountries = gp.read_file("zip://local_world_boundary_dataset.zip")
     geoWorldCountries = gp.GeoDataFrame(worldCountries, geometry='geometry')
